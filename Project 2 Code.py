@@ -70,8 +70,13 @@ model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 
 model.add(layers.Flatten())
 model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(4))
+model.add(layers.Dropout(0.5))
+model.add(layers.Dense(4,activation='softmax'))
+
+
+
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
 
 model.summary()
-
-
