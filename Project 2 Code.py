@@ -30,7 +30,7 @@ train_datagen = ImageDataGenerator(
     horizontal_flip=True )
 
 
-validation_datagen = ImageDataGenerator(rescale=1./255)   #might change val?
+validation_datagen = ImageDataGenerator(rescale=1./255)   
 
 
 # Training data generator
@@ -64,22 +64,32 @@ model = models.Sequential()
 
 model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=image_shape))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu')) #check number
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu')) # check number 
 
+
+#added a layer to see if performance increases
+
+model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))   
 
 # Dense Layer & Hyper Param tuning
 
 model.add(layers.Flatten())
 model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dropout(0.5))
+model.add(layers.Dropout(0.2))  #reduce the rate to see if its better?
 model.add(layers.Dense(4,activation='softmax'))
 
 
 model.summary()
 
-model.compile(optimizer='adam',
+# Make the model 
+
+#Adding custom optimizer
+
+adam = tf.keras.optimizers.Adam(learning_rate=0.0001) # slows down the learning rate
+
+model.compile(optimizer=adam,
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
@@ -89,8 +99,9 @@ model.compile(optimizer='adam',
 
 import matplotlib.pyplot as plt
 
+# increase it 20, to see if accuracy 
 
-history = model.fit(train_generator,epochs=10, validation_data=
+history = model.fit(train_generator,epochs=20, validation_data=
                     validation_generator)
 
 
@@ -111,6 +122,38 @@ plt.ylabel('Loss')
 plt.legend()
 plt.show()
 
+# STEP 5: Model Testing 
+
+from tensorflow.keras.preprocessing import image
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 
+### LARGE ONE
+
+test_image_path = 'Project 2 Data/Data/Test/Large/Crack__20180419_13_29_14,846.bmp'  
+test_image = image.load_img(test_image_path, target_size=(100, 100))
+test_image_array = image.img_to_array(test_image)
+test_image_array = np.expand_dims(test_image_array, axis=0)
+test_image_array /= 255. 
+
+predictions = model.predict(test_image_array)
+
+predicted_class_index = np.argmax(predictions)
+
+class_labels = {0: 'small', 1: 'medium', 2: 'large', 3: 'none'}
+predicted_class_label = class_labels[predicted_class_index]
+
+plt.imshow(test_image)
+plt.title(f'Predicted Class classification label: {predicted_class_label}')
+plt.axis('off')
+
+plt.text(0, -10, 'True Crack classification label: Large ', color='black', fontsize=12,)
+
+
+for i, prob in enumerate(predictions[0]):
+    label = class_labels[i]
+    plt.text(60, 80 + i * 6, f'{label}: {prob:.2%}', color='green', fontsize=10)
+
+plt.show()
