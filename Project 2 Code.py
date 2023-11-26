@@ -62,19 +62,37 @@ model = models.Sequential()
 
 # revisit the output channels sizes
 
-model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=image_shape))
+## im going to try different kind of activation'
+from tensorflow.keras.layers import LeakyReLU
+
+##im going to add a batch normalization first to each layer
+from tensorflow.keras.layers import BatchNormalization
+
+#model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=image_shape))
+model.add(layers.Conv2D(16, (3, 3), input_shape=image_shape))
+model.add(BatchNormalization())
+model.add(LeakyReLU(alpha=0.01))
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-model.add(layers.MaxPooling2D((2, 2)))
+
+#model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+#model.add(layers.Conv2D(32, (3, 3)))
+#model.add(BatchNormalization())
+#model.add(LeakyReLU(alpha=0.01))
+#model.add(layers.MaxPooling2D((2, 2)))
 
 
 #added a layer to see if performance increases
-  
 
 # Dense Layer & Hyper Param tuning
 
 model.add(layers.Flatten())
-model.add(layers.Dense(64, activation='relu'))
+
+model.add(layers.Dense(32, activation='relu'))
+
+#model.add(layers.Dense(32))
+model.add(BatchNormalization())
+#model.add(layers.LeakyReLU(alpha=0.01)) ## maybe chage this
+
 model.add(layers.Dropout(0.1))  #reduce the rate to see if its better?
 model.add(layers.Dense(4,activation='softmax'))
 
@@ -85,7 +103,7 @@ model.summary()
 
 #Adding custom optimizer
 
-adam = tf.keras.optimizers.Adam(learning_rate=0.0001) # slows down the learning rate
+adam = tf.keras.optimizers.Adam(learning_rate=0.01) # slows down the learning rate going down
 
 model.compile(optimizer=adam,
               loss='categorical_crossentropy',
@@ -99,7 +117,7 @@ import matplotlib.pyplot as plt
 
 # increase it 20, to see if accuracy 
 
-history = model.fit(train_generator,epochs=50, validation_data=
+history = model.fit(train_generator,epochs=20, validation_data=
                     validation_generator)
 
 
