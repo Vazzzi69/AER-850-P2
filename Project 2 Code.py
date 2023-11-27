@@ -39,7 +39,7 @@ train_generator = train_datagen.flow_from_directory(
     train_data_directory,
     target_size=image_shape[:2], #reinput size 
     batch_size=32,
-    shuffle =True,    # to randomize
+    shuffle =True,    # to randomize to allow better mix of data for training
     class_mode='categorical'
 )
 
@@ -74,7 +74,6 @@ model.add(BatchNormalization())
 model.add(LeakyReLU(alpha=0.01))
 model.add(layers.MaxPooling2D((2, 2)))
 
-# Second layer wasnt needed either 
 
 model.add(layers.Conv2D(32, (3, 3)))
 model.add(BatchNormalization())
